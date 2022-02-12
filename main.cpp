@@ -7,6 +7,9 @@
 #include "distribution/binomial.h"
 #include "distribution/geometric.h"
 #include "distribution/negative_binomial.h"
+#include "distribution/poisson.h"
+#include "distribution/exponential.h"
+
 
 double gen_random(double begin, double end) {
     std::random_device device;
@@ -22,24 +25,20 @@ double gen_random() {
 
 int simulate_bernoulli(double p);
 void simulate_bernoulli_test();
-
 void simulate_binomial_test();
-
 void simulate_geometric_test();
-
-
 void simulate_negative_binomial_test();
-
-std::vector<double> simulate_poisson(double lamda = 3.1);
 void simulate_poisson_test();
+void simulate_exponential_test();
 
 
 int main(int, char**) {
     //simulate_bernoulli_test();
     //simulate_binomial_test();
     //simulate_geometric_test();
-    simulate_negative_binomial_test();
+    //simulate_negative_binomial_test();
     //simulate_poisson_test();
+    simulate_exponential_test();
     std::cout << "\nHello, world!\n";
 }
 
@@ -82,7 +81,6 @@ void simulate_binomial_test() {
 
 }
 
-
 void simulate_geometric_test() {
     Geometric g(0.03);
     std::random_device rd;
@@ -123,28 +121,60 @@ void simulate_negative_binomial_test() {
     for(auto p: hits) {
         int str_length = (int)(p.second * 600.0);
         if(str_length < 0) str_length = 0;
-        //std::cout << "str_length: " << str_length << std::endl;
+        std::cout << std::setw(2) << p.first << " " << std::string(str_length, '*') << std::endl;
+    }
+
+}
+
+
+
+void simulate_poisson_test() {
+    Poisson p(3.1);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::map<int, double> hits;
+    for(int i = 0; i < 10000; ++i) {
+        std::uniform_real_distribution<> dis(0, 20);
+        int sample = std::round(dis(gen));
+        double sample_r = p(sample);
+        hits[sample] += sample_r;
+    }
+
+    for(auto p: hits) {
+        int str_length = p.second;
+        if(str_length < 0) str_length = 0;
         std::cout << std::setw(2) << p.first << " " << std::string(str_length, '*') << std::endl;
     }
 }
 
-std::vector<double> simulate_poisson(double lamda) {
-    int sample = 20;
-    std::vector<double> r(sample);
-    for(int x = 0; x < sample; ++x) {
-        r[x] = std::pow(lamda, x) * std::exp(-lamda) / fact(x);
-    }
-    return r;
-}
 
-void simulate_poisson_test() {
-    std::vector<double> pd = simulate_poisson();
-    for(int i = 0; i < pd.size(); ++i) {
-        int starCount = 100 * pd[i];
-        for(int j = 0; j < starCount; ++j) {
-            std::cout << "*";
-        }
-        std::cout << std::endl;
+void simulate_exponential_test() {
+    Exponential e(3.1);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::map<double, double> hits;
+    std::vector<double> indices(21);
+    int i = 0;
+    for(double a = 0.0; a <= 2.0; a += 0.1) {
+        hits[a] = 0.0;
+        indices[i++] = a;
+    }
+
+    for(int i = 0; i < 10000; ++i) {
+        std::uniform_real_distribution<> dis(0, 20);
+        int index = std::round(dis(gen));
+        if(index < 0) index = 0;
+        if(index > 20) index = 20;
+        double key = indices[index];
+        double sample_r = e(key);
+        hits[key] += sample_r;
+     
+    }
+
+    for(auto p: hits) {
+        int str_length = p.second / 15;
+        if(str_length < 0) str_length = 0;
+        std::cout << std::fixed << std::setprecision(1) << p.first << " " << std::string(str_length, '*') << std::endl;
     }
 
 }
