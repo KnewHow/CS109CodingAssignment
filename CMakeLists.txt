@@ -4,7 +4,7 @@ project(CMakeLists VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-add_executable(CS109 main.cpp binomial.h binomial.cpp common.h)
+add_executable(CS109 main.cpp distribution/binomial.h distribution/binomial.cpp distribution/geometric.h distribution/geometric.cpp common.h)
 
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

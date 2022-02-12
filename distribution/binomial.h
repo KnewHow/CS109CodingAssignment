@@ -1,7 +1,7 @@
 #ifndef BINOMIAL_H
 #define BINOMIAL_H
 
-#include "common.h"
+#include "../common.h"
 
 
 class Binomial {

@@ -4,7 +4,8 @@
 #include <map>
 #include <iomanip>
 
-#include "binomial.h"
+#include "distribution/binomial.h"
+#include "distribution/geometric.h"
 
 double gen_random(double begin, double end) {
     std::random_device device;
@@ -23,7 +24,6 @@ void simulate_bernoulli_test();
 
 void simulate_binomial_test();
 
-std::vector<double> simulate_geometric(double p = 0.03);
 void simulate_geometric_test();
 
 
@@ -36,8 +36,8 @@ void simulate_poisson_test();
 
 int main(int, char**) {
     //simulate_bernoulli_test();
-    simulate_binomial_test();
-    //simulate_geometric_test();
+    //simulate_binomial_test();
+    simulate_geometric_test();
     // simulate_negative_binomial_test();
     //simulate_poisson_test();
     std::cout << "\nHello, world!\n";
@@ -64,7 +64,6 @@ void simulate_bernoulli_test() {
 }
 
 
-
 void simulate_binomial_test() {
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -83,24 +82,23 @@ void simulate_binomial_test() {
 
 }
 
-std::vector<double> simulate_geometric(double p) {
-    int n = 500;
-    std::vector<double> geometric(n);
-    for(int i = 0; i < n; ++i) {
-        geometric[i] = std::pow(1 - p, i) * p;
-    }
-    return geometric;
-}
 
 void simulate_geometric_test() {
-    std::vector<double> geometric = simulate_geometric();
-    for(int i = 0; i < geometric.size(); ++i) {
-        int starCount = 1000 * geometric[i];
-        for(int j = 0; j < starCount; ++j) {
-            std::cout << "*";
-        }
-        std::cout << std::endl;
+   Geometric g(0.03);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::map<int, double> hits;
+    for(int i = 0; i < 10000; ++i) {
+        std::uniform_real_distribution<> dis(1, 60);
+        int sample = std::round(dis(gen));
+        double sample_r = g(sample);
+        hits[sample] += sample_r;
     }
+
+    for(auto p: hits) {
+        std::cout << std::setw(2) << p.first << " " << std::string(p.second * 10, '*') << std::endl;
+    }
+
 }
 
 std::vector<double> simulate_negative_binomial(int r, double p) { // it's seem has some bug
