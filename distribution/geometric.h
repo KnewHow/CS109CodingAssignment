@@ -13,8 +13,6 @@ double operator()(int x) {
 
 public:
     double p;
-
-
 };
 
 #endif

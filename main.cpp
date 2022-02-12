@@ -6,6 +6,7 @@
 
 #include "distribution/binomial.h"
 #include "distribution/geometric.h"
+#include "distribution/negative_binomial.h"
 
 double gen_random(double begin, double end) {
     std::random_device device;
@@ -27,7 +28,6 @@ void simulate_binomial_test();
 void simulate_geometric_test();
 
 
-std::vector<double> simulate_negative_binomial(int r = 5, double p = 0.03); // has some bug
 void simulate_negative_binomial_test();
 
 std::vector<double> simulate_poisson(double lamda = 3.1);
@@ -37,8 +37,8 @@ void simulate_poisson_test();
 int main(int, char**) {
     //simulate_bernoulli_test();
     //simulate_binomial_test();
-    simulate_geometric_test();
-    // simulate_negative_binomial_test();
+    //simulate_geometric_test();
+    simulate_negative_binomial_test();
     //simulate_poisson_test();
     std::cout << "\nHello, world!\n";
 }
@@ -84,7 +84,7 @@ void simulate_binomial_test() {
 
 
 void simulate_geometric_test() {
-   Geometric g(0.03);
+    Geometric g(0.03);
     std::random_device rd;
     std::mt19937 gen(rd());
     std::map<int, double> hits;
@@ -101,23 +101,30 @@ void simulate_geometric_test() {
 
 }
 
-std::vector<double> simulate_negative_binomial(int r, double p) { // it's seem has some bug
-    int n = 50;
-    std::vector<double> nb(n);
-    for(int k = r; k < r + n; ++k) {
-        nb[k - r] = combination(k - 1, r - 1) * std::pow(p, r) * std::pow(1 - p, k - r);
-    }
-    return nb;
-}
 
 void simulate_negative_binomial_test() {
-     std::vector<double> nb = simulate_negative_binomial();
-    for(int i = 0; i < nb.size(); ++i) {
-        int starCount = 20 * nb[i];
-        for(int j = 0; j < starCount; ++j) {
-            std::cout << "*";
+    NegativeBinomial nb(5, 0.03);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::map<int, double> hits;
+
+    for(int i = 0; i < 10000; ++i) {
+        std::uniform_real_distribution<> dis(0, 40);
+        int sample = std::round(dis(gen));
+        double sample_r = nb(sample);
+        if(hits.find(sample) != hits.end()) {
+            hits[sample] += sample_r;
+        } else {
+            hits[sample] = sample_r;
         }
-        std::cout << std::endl;
+        
+    }
+
+    for(auto p: hits) {
+        int str_length = (int)(p.second * 600.0);
+        if(str_length < 0) str_length = 0;
+        //std::cout << "str_length: " << str_length << std::endl;
+        std::cout << std::setw(2) << p.first << " " << std::string(str_length, '*') << std::endl;
     }
 }
 
